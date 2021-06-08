@@ -1,0 +1,10 @@
+.Joke {
+    width: 90%;
+    margin: 0 auto 15px auto;
+    background-color: aqua;
+    padding: 10px;
+    font-size: 17px;
+    background-color: var(--maincolor);
+    color: #fff;
+    border-radius: 23px;
+}
