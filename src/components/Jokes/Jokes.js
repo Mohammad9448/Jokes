@@ -12,6 +12,10 @@ function Jokes(props) {
 
     async function getDataFromApiWithSearch() {
         const term = document.getElementById("search").value;
+        if(term==='') {
+            getTenRandomJokes();
+            return;
+        }
         setIsLoading(true);
         let response;
         let result;
@@ -31,30 +35,68 @@ function Jokes(props) {
         setIsLoading(false);
         setData(result.results);
     }
-    const getDataFromApi = useCallback(async function () {
+    // Better Solution
+    const getTenRandomJokes = useCallback(function () {
+
+
+        const Url = 'https://icanhazdadjoke.com/';
         setIsLoading(true);
+
+        let promisses = [];
         let response;
-        let result;
+        for (var i = 0; i < 10; i++) {
+            response = fetch(Url, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+
+            });
+            let result = response.then(x => { return x.json(); });
+            promisses.push(result);
 
 
-        let Url = 'https://icanhazdadjoke.com/search?term=&&page=1&&limit=10';
+
+        }
+        
+        Promise.all(promisses)
+            .then((dat) => {
+                setData(dat);
+                setIsLoading(false);
+                console.log(dat);
+            })
 
 
-        response = await fetch(Url, {
-            headers: {
-                'Accept': 'application/json'
-            }
 
-        });
 
-        result = await response.json();
-        setIsLoading(false);
-        setData(result.results);
 
-    }, []);
+    }, [])
+    // Old Code
+
+    // const getDataFromApi = useCallback(async function () {
+    //     setIsLoading(true);
+    //     let response;
+    //     let result;
+
+
+    //     let Url = 'https://icanhazdadjoke.com/search?term=&&page=1&&limit=10';
+
+
+    //     response = await fetch(Url, {
+    //         headers: {
+    //             'Accept': 'application/json'
+    //         }
+
+    //     });
+
+    //     result = await response.json();
+    //     setIsLoading(false);
+    //     setData(result.results);
+
+    // }, []);  
+
     useEffect(() => {
-        getDataFromApi();
-    }, [getDataFromApi]);
+        getTenRandomJokes();
+    }, [getTenRandomJokes]);
 
 
     return (
@@ -68,11 +110,12 @@ function Jokes(props) {
             <div className='jokes-container'>
                 <h2>Fetched Jokes</h2>
 
-                {!isLoading && data.length>0 && data.map(joke => {
-                    return <Joke key={joke.Id} jokeTxt={joke.joke} />
+                {!isLoading && data.map(joke => {
+                    return <Joke key={joke.id} jokeTxt={joke.joke} />
                 })}
-                {data.length===0 && <h3>No Jokes found</h3>}
                 {isLoading && <LoadingWave />}
+                {!isLoading && data.length === 0 && <h3>No Jokes found</h3>}
+
 
             </div>
         </div>
